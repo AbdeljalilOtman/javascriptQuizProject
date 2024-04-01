@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quiz Gene</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .item {
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .quiz {
+            display: none;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .choices {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Quiz Generator</h1>
+    <div id="config">
+        <label for="cat">Category:</label>
+        <select id="cat" class="item">
+            <option value="9">General Knowledge</option>
+            <option value="18">Science: Computers</option>
+            <option value="19">Science: Mathematics</option>
+        </select>
+        <br>
+        <label for="diff">Difficulty:</label>
+        <select id="diff" class="item">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        <br>
+        <label for="num">Number of Questions:</label>
+        <input type="number" id="num" value="5" min="1" class="item">
+        <br>
+        <label for="typ">Type:</label>
+        <select id="typ" class="item">
+            <option value="multiple">Multiple Choice</option>
+            <option value="boolean">True / False</option>
+        </select>
+        <br>
+        <button onclick="beginQuiz()" class="item">Start Quiz</button>
+    </div>
+
+    <div id="quiz" class="quiz"></div>
+    
+    <button id="check" style="display: none;" onclick="cResults()" class="item">Check Results</button>
+</div>
+
+<script>
+    let data;
+
+    async function beginQuiz() {
+        const cat = document.getElementById('cat').value;
+        const diff = document.getElementById('diff').value;
+        const num = document.getElementById('num').value;
+        const typ = document.getElementById('typ').value;
+        const url = `https://opentdb.com/api.php?amount=${num}&category=${cat}&difficulty=${diff}&type=${typ}`;
+
+        const response = await fetch(url);
+        data = await response.json(); 
+
+        if (data.results.length > 0) {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            data.results.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('question');
+                questionElement.innerHTML = `
+                    <p>${index + 1}. ${question.question}</p>
+                    <div class="choices">
+                        ${question.incorrect_answers.map(answer => `
+                            <label><input type="radio" name="q${index}" value="${answer}"> ${answer}</label><br>
+                        `).join('')}
+                        <label><input type="radio" name="q${index}" value="${question.correct_answer}"> ${question.correct_answer}</label><br>
+                    </div>
+                `;
+                quizContainer.appendChild(questionElement);
+            });
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('config').style.display = 'none';
+            document.getElementById('check').style.display = 'block'; 
+        } else {
+            alert('No questions found for the selected criteria.');
+        }
+    }
+
+    function cResults() {
+        
+        const questions = document.querySelectorAll('.question');
+        let correctAnswers = 0;
+        questions.forEach((question, index) => {
+            const selectedAnswer = question.querySelector(`input[name="q${index}"]:checked`);
+            if (selectedAnswer && selectedAnswer.value === data.results[index].correct_answer) {
+                correctAnswers++;
+            }
+        });
+
+        alert(`Your score is : ${correctAnswers}/${questions.length}`);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>questionnaire à Choix Multiples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .C {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .q {
+            margin-bottom: 20px;
+        }
+        .options {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #score {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="C">
+    <h1>questionnaire à Choix Multiples</h1>
+    <div id="score">Votre score est : <span id="scoreValue"></span></div>
+    <div id="parent">
+        <div class="q" id="q1">
+            <h2>q 1 : Quelle est la capitale de la France ?</h2>
+            <div class="options">
+                <label><input type="radio" name="q1" value="Paris"> Paris</label><br>
+                <label><input type="radio" name="q1" value="Londres"> Londres</label><br>
+                <label><input type="radio" name="q1" value="Berlin"> Berlin</label><br>
+            </div>
+        </div>
+        <div class="q" id="q2">
+            <h2>q 2 : Quel est le plus grand océan du monde ?</h2>
+            <div class="options">
+                <label><input type="radio" name="q2" value="Atlantique"> Atlantique</label><br>
+                <label><input type="radio" name="q2" value="Pacifique"> Pacifique</label><br>
+                <label><input type="radio" name="q2" value="Arctique"> Arctique</label><br>
+            </div>
+        </div>
+        <div class="q" id="q3">
+            <h2>q 3 : C'est quoi la définition d'un langage assembleur ?</h2>
+            <div class="options">
+                <label><input type="radio" name="q3" value="LowLEvel"> Low level language</label><br>
+                <label><input type="radio" name="q3" value="highLevel"> High level language</label><br>
+                <label><input type="radio" name="q3" value="N"> Aucune des réponses ci-dessus</label><br>
+            </div>
+        </div>
+    </div>
+    <div>Temps écoulé : <span id="time"></span></div>
+    <button onclick="calculateScore()" id="b">Soumettre</button>
+</div>
+
+<script>
+    let t = 10;
+    let activated_question = 0;
+    let p = document.getElementById('parent');
+    let b = document.getElementById('b');
+    let childs = p.children;
+
+    b.disabled = true;
+    for (let index = 0; index < childs.length; index++) {
+        if (index !== 0) childs[index].style.display = 'none'; 
+    }
+
+    function time_passing() {
+        let time = document.getElementById('time');
+        time.innerText = t;
+        t--;
+
+        if (t === 0 && activated_question < 2) {
+            childs[activated_question].style.display = 'none';
+            activated_question++;
+            childs[activated_question].style.display = 'block';
+            t = 10;
+        } else if (activated_question === 2 && t === 0){
+            calculateScore();
+            
+            activated_question = 3;
+        } else if(activated_question === 2){
+            b.disabled = false;
+            activated_question = 3;
+        }
+    }
+    let intervals = setInterval(time_passing, 1000);
+
+    
+
+    function calculateScore() {
+        clearInterval(intervals);
+        const q1Answer = document.querySelector('input[name="q1"]:checked').value;
+        const q2Answer = document.querySelector('input[name="q2"]:checked').value;
+        const q3Answer = document.querySelector('input[name="q3"]:checked').value;
+
+        let score = 0;
+        if (q1Answer === "Paris") score++;
+        if (q2Answer === "Pacifique") score++;
+        if (q3Answer === "LowLEvel") score++;
+
+        document.getElementById('scoreValue').innerText = score + "/3";
+        document.getElementById('score').style.display = "block";
+
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
